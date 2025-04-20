@@ -7,19 +7,24 @@ def processSequence(sequenceData):
     for sequence in sequenceData:
         sliceI = []
         for slice in sequence:
-            index = np.where(slice == 1)[0][0]
+            indices = np.where(slice == 1.0)[0]
+            if len(indices) > 0:
+                index = indices[0]
+            else:
+                # Handle the case where no 1.0 is found (e.g., use a default value like 0)
+                index = 0
             sliceI.append(index)
         sequences.append(sliceI)
-    
+    print(sequences)
     return sequences
-
 class ModelDataset(Dataset):
     def __init__(self, sequenceData: dict):
         self.x_soprano = torch.tensor(sequenceData['soprano'], dtype=torch.float32)
         self.y_alto = torch.tensor(processSequence(sequenceData['alto']), dtype=torch.long)
         self.y_tenor = torch.tensor(processSequence(sequenceData['tenor']), dtype=torch.long)
         self.y_bass = torch.tensor(processSequence(sequenceData['bass']), dtype=torch.long)
-        self.length = len(sequenceData['soprano'])
+        self.length = min(len(sequenceData['soprano']), len(sequenceData['alto']),
+                            len(sequenceData['tenor']), len(sequenceData['bass']))
 
     def __len__(self): 
         return self.length

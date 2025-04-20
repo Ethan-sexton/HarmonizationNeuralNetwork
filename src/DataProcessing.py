@@ -41,6 +41,7 @@ def loadData():
     print(f"Alto length: {len(sequentialData['alto'])}")
     print(f"Tenor length: {len(sequentialData['tenor'])}")
     print(f"Bass length: {len(sequentialData['bass'])}")
+    print(torch.Tensor(sequentialData['alto']).max)
     return midiData, ModelDataset(sequentialData)
 
 def oneHotEnocde(part):
@@ -61,15 +62,22 @@ def decodePart(part: list):
 def keyFromValue(dict: dict, neededValue):
     print("key from value entered")
     for key, value in dict:
+
         if value == neededValue:
             return key
+        
     raise ValueError(f"{neededValue} not found in dictionary {dict}")
 
 def splitSequence(sequence: list):
-    print("split sequence entered")
-    if len(sequence) == 0:
-        print("Empty sequence provided, returning empty list.")
-        return []
-    sequenceLength = Constants.SEQUENCE_LENGTH
-    split = [sequence[i:i + sequenceLength] for i in range(0, len(sequence), sequenceLength)]
+    splitLen = len(sequence)
+    split = []
+    for start in range(0, splitLen, Constants.SEQUENCE_LENGTH):
+        splitEnd = start + Constants.SEQUENCE_LENGTH
+
+        if splitEnd > splitLen:
+            splitEnd = splitLen - 1
+            start = splitEnd - Constants.SEQUENCE_LENGTH
+        
+        sequencePart = sequence[start:splitEnd]
+        split.append(sequencePart)
     return split
