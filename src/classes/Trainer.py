@@ -1,17 +1,20 @@
-import DataProcessing
 from model.HarmonizationNeuralNetwork import HarmonizationNeuralNetwork
-import random as rd
 import torch    
 import torch.nn as F
 from torch.utils.data import DataLoader
 import torch.optim as optim
-import Constants
+import Constants as Constants
+
 
 device = torch.device("cpu") #Could allow GPU utilization, but my laptop cries enough as is
+
 LEARNING_RATE = Constants.LEARNING_RATE
 BATCH_SIZE = Constants.BATCH_SIZE
 SEQUENCE_LENGTH = Constants.SEQUENCE_LENGTH
-CLASS_NUMBER = Constants.CLASS_NUMBER
+SOPRANO_CLASS_NUMBER = Constants.SOPRANO_CLASS_NUMBER
+ALTO_CLASS_NUMBER = Constants.ALTO_CLASS_NUMBER
+TENOR_CLASS_NUMBER = Constants.TENOR_CLASS_NUMBER
+BASS_CLASS_NUMBER = Constants.BASS_CLASS_NUMBER
 
 class Trainer:
     def __init__(self, model: HarmonizationNeuralNetwork, dataLoader: DataLoader):
@@ -60,9 +63,9 @@ class Trainer:
             self.optimizer.zero_grad()
             predAlto, predTenor, predBass = self.model(x_soprano)
 
-            predAlto = torch.reshape(predAlto, (BATCH_SIZE, CLASS_NUMBER, SEQUENCE_LENGTH))
-            predTenor = torch.reshape(predTenor, (BATCH_SIZE, CLASS_NUMBER, SEQUENCE_LENGTH))
-            predBass = torch.reshape(predBass, (BATCH_SIZE, CLASS_NUMBER, SEQUENCE_LENGTH))           
+            predAlto = torch.reshape(predAlto, (BATCH_SIZE, ALTO_CLASS_NUMBER, SEQUENCE_LENGTH))
+            predTenor = torch.reshape(predTenor, (BATCH_SIZE, TENOR_CLASS_NUMBER, SEQUENCE_LENGTH))
+            predBass = torch.reshape(predBass, (BATCH_SIZE, BASS_CLASS_NUMBER, SEQUENCE_LENGTH))           
 
             lossAlto = self.calculateLoss(predAlto, y_alto)
             lossTenor = self.calculateLoss(predTenor, y_tenor)
@@ -70,26 +73,28 @@ class Trainer:
 
             lossTotal = lossAlto + lossTenor + lossBass
 
-            altoLossCollec.append([lossAlto, epoch])
-            tenorLossCollec.append([lossTenor, epoch])
-            bassLossCollec.append([lossBass, epoch])
-            totalLossCollec.append([lossTotal, epoch])
+
 
             lossTotal.backward()
             self.optimizer.step()
 
-            if i % 100 == 0:
+            if i % 400 == 0:
                 altoCorrect = self.sumCorrectPredictions(predAlto, y_alto)
                 tenorCorrect = self.sumCorrectPredictions(predTenor, y_tenor)
                 bassCorrect = self.sumCorrectPredictions(predBass, y_bass)
                 totalCorrect = altoCorrect + tenorCorrect + bassCorrect
 
-                altoCorrectCollec.append([altoCorrect, epoch])
-                tenorCorrectCollec.append([tenorCorrect, epoch])
-                bassCorrectCollec.append([bassCorrect, epoch])
-                totalCorrectCollec.append([totalCorrect, epoch])
+                altoLossCollec.append([epoch, lossAlto.item()])
+                tenorLossCollec.append([epoch, lossTenor.item()])
+                bassLossCollec.append([epoch, lossBass.item()])
+                totalLossCollec.append([epoch, lossTotal.item()])
+                
+                altoCorrectCollec.append([epoch, altoCorrect])
+                tenorCorrectCollec.append([epoch, tenorCorrect])
+                bassCorrectCollec.append([epoch, bassCorrect ])
+                totalCorrectCollec.append([epoch, totalCorrect])
 
             currentItem = i * len(x_soprano)
             print(f"Epoch #{epoch} \n Loss: {lossTotal}\n Current Item: {currentItem} \nTotal Correct Predictions: {totalCorrect}\n")
-        return totalLossCollec, altoLossCollec, tenorLossCollec, bassLossCollec, altoCorrectCollec, tenorCorrectCollec, bassCorrectCollec, totalCorrectCollec
+        return [totalLossCollec, altoLossCollec, tenorLossCollec, bassLossCollec, totalCorrectCollec, altoCorrectCollec, tenorCorrectCollec, bassCorrectCollec]
         

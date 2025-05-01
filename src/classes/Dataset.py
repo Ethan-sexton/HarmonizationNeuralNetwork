@@ -7,15 +7,19 @@ def processSequence(sequenceData):
     for sequence in sequenceData:
         sliceI = []
         for slice in sequence:
-            indices = np.where(slice == 1.0)[0]
-            if len(indices) > 0:
-                index = indices[0]
+            slice = np.array(slice)  # Ensure slice is a NumPy array
+            if np.sum(slice) != 1.0:
+                print(f"Invalid slice detected: {slice}. Using default value 0.")
+                index = 0  # Default to 0 for invalid slices
             else:
-                # Handle the case where no 1.0 is found (e.g., use a default value like 0)
-                index = 0
+                indices = np.where(np.isclose(slice, 1.0))[0]  # Use np.isclose for comparison
+                if len(indices) > 0:
+                    index = indices[0]
+                else:
+                    print(f"No 1.0 found in slice: {slice}. Using default value 0.")
+                    index = 0
             sliceI.append(index)
         sequences.append(sliceI)
-    print(sequences)
     return sequences
 class ModelDataset(Dataset):
     def __init__(self, sequenceData: dict):

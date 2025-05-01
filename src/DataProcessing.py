@@ -1,7 +1,6 @@
 import pickle
 from classes.Voices import Voices
-import torch
-import Constants
+import classes.Constants as Constants
 from classes.Dataset import ModelDataset
 
 def loadData():
@@ -33,7 +32,8 @@ def loadData():
                     notes.append(song[beat][voice.dataIndex])
             while (len(notes) < Constants.MAX_SONG_LENGTH) and (len(notes) == len(song)):
                 notes.append(0)
-            encoded = oneHotEnocde(notes)
+            print(voice.name)
+            encoded = voice.encodePart(notes)
             split = splitSequence(encoded)
             sequentialData[voice.name] = sequentialData[voice.name] + split
 
@@ -41,16 +41,16 @@ def loadData():
     print(f"Alto length: {len(sequentialData['alto'])}")
     print(f"Tenor length: {len(sequentialData['tenor'])}")
     print(f"Bass length: {len(sequentialData['bass'])}")
-    print(torch.Tensor(sequentialData['alto']).max)
+    
     return midiData, ModelDataset(sequentialData)
 
-def oneHotEnocde(part):
-    print("one hot encode entered")
-    encodedPart = []
-    ENCODE_KEY = Constants.ENOCDE_KEY
-    for item in part:
-        encodedPart.append(ENCODE_KEY[item])
-    return encodedPart
+# def oneHotEnocde(part):
+    
+#     encodedPart = []
+#     ENCODE_KEY = Constants.ENOCDE_KEY
+#     for item in part:
+#         encodedPart.append(ENCODE_KEY[item])
+#     return encodedPart
 
 def decodePart(part: list):
     print("decode part entered")
