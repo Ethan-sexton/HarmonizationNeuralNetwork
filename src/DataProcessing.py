@@ -1,6 +1,6 @@
 import pickle
 from classes.Voices import Voices
-import classes.Constants as Constants
+import Constants
 from classes.Dataset import ModelDataset
 
 def loadData():

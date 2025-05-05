@@ -8,7 +8,6 @@ class Voice:
         self.dataIndex = dataIndex
         self.range = ran
         self.ENCODE_KEY = generateKey(ran.getRange()[0], ran.getRange()[1])
-        print(self.ENCODE_KEY)
 
     def getPartList(self, df: pd.DataFrame, songIndex: int):
         print("Get part list entered")
@@ -22,13 +21,12 @@ class Voice:
         return notes
 
     def encodePart(self, part: list):
-        print("encode part entered")
         encodedPart = []
         for item in part:
             if item == -1 or item is None or item == 0:
                 encodedPart.append([0] * len(self.ENCODE_KEY))
             else:
-                encodedPart.append(self.ENCODE_KEY[item])
+                encodedPart.append(self.ENCODE_KEY[int(item)])
         return encodedPart
     
     def decodePart(self, part: list):
@@ -50,7 +48,6 @@ def generateKey(min, max):
     key = {}
     key.update({1 : [0] * len(listOfNums)})
     for nums in range(len(listOfNums)):
-        print(nums)
         copy = [0] * len(listOfNums)
         copy[nums] = 1
         key[listOfNums[nums]] = copy

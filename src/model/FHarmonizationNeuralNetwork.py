@@ -10,9 +10,9 @@ TENOR_CLASS_NUMBER = Constants.TENOR_CLASS_NUMBER
 BASS_CLASS_NUMBER = Constants.BASS_CLASS_NUMBER
 DROPUT_RATE = Constants.DROPOUT_RATE
 
-class HarmonizationNeuralNetwork(nn.Module):
+class FHarmonizationNeuralNetwork(nn.Module):
     def __init__(self):
-        super(HarmonizationNeuralNetwork, self).__init__()
+        super(FHarmonizationNeuralNetwork, self).__init__()
 
         self.input = nn.Linear(SEQUENCE_LENGTH * SOPRANO_CLASS_NUMBER, 200)
         self.hidden1 = nn.Linear(200, 200)

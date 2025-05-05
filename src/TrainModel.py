@@ -1,26 +1,29 @@
 from classes.Trainer import Trainer
 from DataProcessing import loadData
-from model.HarmonizationNeuralNetwork import HarmonizationNeuralNetwork
+from model.RHarmonizationNeuralNetwork import RHarmonizationNeuralNetwork 
 import torch
 from torch.utils.data import DataLoader 
 import matplotlib.pyplot as plt
 
 BATCH_SIZE = 4
-EPOCHS = 500
+EPOCHS = 50
 
 device = torch.device('cpu')
 midiData, dataset = loadData()
 dl = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
-model = HarmonizationNeuralNetwork().to(device)
+model = RHarmonizationNeuralNetwork().to(device)
 trainer = Trainer(model, dl)
 
 dataCollect = []
+oracle = []
+baseline = []
 for epoch in range(1, EPOCHS + 1):
     toPlot = trainer.train(epoch)
-    dataCollect.append(toPlot)
+    dataCollect.append(toPlot[0])
+    oracle.append(toPlot[1])
+    baseline.append(toPlot[2])
     print(f'Epoch {epoch} completed')
 model.eval()
-
 totalLossCollec, altoLossCollec, tenorLossCollec, bassLossCollec, totalCorrectCollec, altoCorrectCollec, tenorCorrectCollec, bassCorrectCollec = zip(*dataCollect)
 
 # Flatten data for graphing
@@ -33,7 +36,8 @@ totalCorrectX, totalCorrectY = zip(*[item for sublist in totalCorrectCollec for 
 altoCorrectX, altoCorrectY = zip(*[item for sublist in altoCorrectCollec for item in sublist])
 tenorCorrectX, tenorCorrectY = zip(*[item for sublist in tenorCorrectCollec for item in sublist])
 bassCorrectX, bassCorrectY = zip(*[item for sublist in bassCorrectCollec for item in sublist])
-
+oracleX, oracleY = zip(*oracle)
+baselineX, baselineY = zip(*[item for sublist in baseline for item in sublist])
 # Plot Loss
 figLoss, axLoss = plt.subplots()
 axLoss.plot(totalLossX, totalLossY, label='Total Loss', color='blue')
@@ -42,8 +46,8 @@ axLoss.plot(tenorLossX, tenorLossY, label='Tenor Loss', color='green')
 axLoss.plot(bassLossX, bassLossY, label='Bass Loss', color='red')
 axLoss.legend()
 plt.xlabel('Epoch Number')
-plt.ylabel('Loss')
-plt.title('Loss per Epoch')
+plt.ylabel('Average Loss')
+plt.title('Average Loss per Epoch')
 plt.savefig('total-loss.png')
 
 # Plot Correct Predictions
@@ -55,8 +59,20 @@ axCorrect.plot(tenorCorrectX, tenorCorrectY, label='Tenor Correct', color='green
 axCorrect.plot(bassCorrectX, bassCorrectY, label='Bass Correct', color='red')
 axCorrect.legend()
 plt.xlabel('Epoch Number')
-plt.ylabel('Correct Predictions')
-plt.title('Correct Predictions per Epoch')
+plt.ylabel('Average Correct Predictions')
+plt.title('Average Correct Predictions per Epoch')
 plt.savefig('total-correct.png')
+
+plt.clf()
+# Plot Oracle vs Baseline vs Model
+figCorrect, axCorrect = plt.subplots()
+axCorrect.plot(oracleX, oracleY, label='Oracle', color='blue')
+axCorrect.plot(baselineX, baselineY, label='Baseline', color='orange')
+axCorrect.plot(totalCorrectX, totalCorrectY, label='Model', color='green')
+axCorrect.legend()
+plt.xlabel('Epoch Number')
+plt.ylabel('Average Correct Predictions')
+plt.title('Oracle vs Baseline vs Model')
+plt.savefig('oracle-baseline-model.png')
 
 torch.save(model.state_dict(), 'harmonizer.pth')

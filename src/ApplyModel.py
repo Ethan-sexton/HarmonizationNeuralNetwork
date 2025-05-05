@@ -1,9 +1,9 @@
 import torch
 from classes.Voices import Voices
-from model.HarmonizationNeuralNetwork import HarmonizationNeuralNetwork
+from model.FHarmonizationNeuralNetwork import FHarmonizationNeuralNetwork
 from classes.NoteConverter import NoteConverter
 from classes import Constants
-model = HarmonizationNeuralNetwork()
+model = FHarmonizationNeuralNetwork()
 model.load_state_dict(torch.load('harmonizer.pth', weights_only=False, map_location=torch.device('cpu')))
 model.eval()
 
@@ -43,6 +43,7 @@ predTenorList = converter.flattenVoice(predTenorList)
 for item in range(len(predTenorList)):
     if predTenorList[item] != 0:
         predTenorList[item] = predTenorList[item] + 47
+        
 predBassList = converter.flattenVoice(predBassList)
 for item in  range(len(predBassList)):
     if predBassList[item] != 0:
