@@ -4,7 +4,15 @@ import Constants as Constants
 #Takes in Model's output, converts to standard midi
 class NoteConverter:
     def __init__(self):
-        self.ENCODE_KEY = Constants.ENCODE_KEY 
+        self.ENCODE_KEY = {
+            0: 0,  # Rest
+            1: 43,  # Soprano
+            2: 50,  # Alto
+            3: 42,  # Tenor
+            4: 36,  # Bass
+        }
+        self.DECODE_KEY = {v: k for k, v in self.ENCODE_KEY.items()}
+        self.voices = Voices.Voices()
 
     def midiToNote(self, fileName):
         mid = mido.MidiFile(fileName)

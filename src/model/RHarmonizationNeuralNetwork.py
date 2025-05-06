@@ -1,3 +1,4 @@
+# Recurrent Neural Network 
 import torch.nn as nn
 import torch.nn.functional as F
 import Constants 
@@ -46,8 +47,8 @@ class RHarmonizationNeuralNetwork(nn.Module):
         bass_output = self.bass_fc(x)
 
         # Apply softmax to get probabilities
-        alto_output = F.log_softmax(alto_output, dim=2)
-        tenor_output = F.log_softmax(tenor_output, dim=2)
-        bass_output = F.log_softmax(bass_output, dim=2)
+        alto_output = F.log_softmax(alto_output, dim=1)
+        tenor_output = F.log_softmax(tenor_output, dim=1)
+        bass_output = F.log_softmax(bass_output, dim=1)
 
         return alto_output, tenor_output, bass_output

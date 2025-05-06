@@ -4,7 +4,7 @@ import Constants
 from classes.Dataset import ModelDataset
 
 def loadData():
-    print("load data entered")
+    print("Loading Data...")
     with open('dataset\jsb-chorales-16th.pkl', 'rb') as file:
         midiData = pickle.load(file, encoding="latin1")
     
@@ -32,41 +32,19 @@ def loadData():
                     notes.append(song[beat][voice.dataIndex])
             while (len(notes) < Constants.MAX_SONG_LENGTH) and (len(notes) == len(song)):
                 notes.append(0)
-            print(voice.name)
             encoded = voice.encodePart(notes)
             split = splitSequence(encoded)
             sequentialData[voice.name] = sequentialData[voice.name] + split
-
-    print(f"Soprano length: {len(sequentialData['soprano'])}")
-    print(f"Alto length: {len(sequentialData['alto'])}")
-    print(f"Tenor length: {len(sequentialData['tenor'])}")
-    print(f"Bass length: {len(sequentialData['bass'])}")
     
     return midiData, ModelDataset(sequentialData)
 
-# def oneHotEnocde(part):
-    
-#     encodedPart = []
-#     ENCODE_KEY = Constants.ENOCDE_KEY
-#     for item in part:
-#         encodedPart.append(ENCODE_KEY[item])
-#     return encodedPart
-
-def decodePart(part: list):
-    print("decode part entered")
-    decodedPart = []
-    for item in part:
-        decodedPart.append(keyFromValue(Constants.ENCODE_KEY, item))
-    return decodedPart
-
 def keyFromValue(dict: dict, neededValue):
-    print("key from value entered")
     for key, value in dict:
 
         if value == neededValue:
             return key
         
-    raise ValueError(f"{neededValue} not found in dictionary {dict}")
+    raise ValueError(f"Error in DataProcessing\keyFromValue: {neededValue} not found in dictionary {dict}")
 
 def splitSequence(sequence: list):
     splitLen = len(sequence)
